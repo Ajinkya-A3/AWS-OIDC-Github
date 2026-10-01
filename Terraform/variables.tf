@@ -14,6 +14,18 @@ variable "github_repo" {
   type        = string
 }
 
+variable "github_owner_id" {
+  description = "Numeric GitHub owner (user/org) ID. Required for repos using immutable subject claims."
+  type        = string
+  default     = ""
+}
+
+variable "github_repo_id" {
+  description = "Numeric GitHub repository ID. Required for repos using immutable subject claims."
+  type        = string
+  default     = ""
+}
+
 variable "github_branch" {
   description = "Branch allowed to assume the role"
   type        = string

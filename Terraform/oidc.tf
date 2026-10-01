@@ -17,8 +17,14 @@ data "aws_iam_openid_connect_provider" "github" {
 locals {
   oidc_provider_arn = var.create_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : data.aws_iam_openid_connect_provider.github[0].arn
 
-  # Built from variables: repo:<username>/<repo>:ref:refs/heads/<branch>
-  github_sub = "repo:${var.github_username}/${var.github_repo}:ref:refs/heads/${var.github_branch}"
+  # True only when both IDs are provided
+  use_ids = var.github_owner_id != "" && var.github_repo_id != ""
+
+  github_sub = local.use_ids ? (
+    "repo:${var.github_username}@${var.github_owner_id}/${var.github_repo}@${var.github_repo_id}:ref:refs/heads/${var.github_branch}"
+  ) : (
+    "repo:${var.github_username}/${var.github_repo}:ref:refs/heads/${var.github_branch}"
+  )
 }
 
 # ---------------------------------------------------------------
