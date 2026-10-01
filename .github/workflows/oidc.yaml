@@ -1,4 +1,4 @@
-name: deploy
+name: OIDC Test
 
 on:
   workflow_dispatch: {} 
