@@ -41,5 +41,7 @@ variable "max_session_duration" {
 variable "policy_arns" {
   description = "Managed policy ARNs to attach to the role. Use least-privilege policies."
   type        = list(string)
-  default     = [] 
+  default = [
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  ]
 }
