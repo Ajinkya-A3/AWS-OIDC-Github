@@ -1,7 +1,7 @@
 name: OIDC Test
 
 on:
-  workflow_dispatch: {} 
+  workflow_dispatch: {}
 
 permissions:
   id-token: write      # required to request the OIDC token
@@ -13,9 +13,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check role ARN is set
+        env:
+          ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+        run: |
+          if [ -z "$ROLE_ARN" ]; then
+            echo "AWS_ROLE_ARN secret is EMPTY"; exit 1
+          else
+            echo "AWS_ROLE_ARN secret is set (length: ${#ROLE_ARN})"
+          fi
+
+      - name: Print OIDC claims
+        run: |
+          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          payload=$(echo "$TOKEN" | cut -d. -f2 | tr '_-' '/+')
+          while [ $(( ${#payload} % 4 )) -ne 0 ]; do payload="${payload}="; done
+          echo "$payload" | base64 -d | jq '{iss, aud, sub, ref, repository, event_name}'
+
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-south-1
 
